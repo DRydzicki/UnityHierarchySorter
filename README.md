@@ -1,0 +1,1 @@
+Alphabeticaly sort objects in scene hierarchy.
