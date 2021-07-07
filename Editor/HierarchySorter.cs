@@ -23,7 +23,7 @@ public class ObjectSorter : Editor
         {
             List<Transform> children = parent.Cast<Transform>().ToList();
             foreach (var child in children)
-                if(child.name.Contains('('))
+                if (Regex.IsMatch(child.name, @"\([0-9]*\)\n"))
                     child.name = InsertZeros(child.name);
 
             children.Sort((Transform t1, Transform t2) => { return t1.name.CompareTo(t2.name); });
@@ -31,21 +31,24 @@ public class ObjectSorter : Editor
                 children[i].SetSiblingIndex(i);
 
             foreach (var child in children)
-                child.name = RemoveZeros(child.name);
+                if (Regex.IsMatch(child.name, @"\([0-9]*\)\n"))
+                    child.name = RemoveZeros(child.name);
         }
 
         string InsertZeros(string name)
         {
-            string number = name.Split('(', ')')[1];
+            string number = name.Substring(name.LastIndexOf('(')+1, name.LastIndexOf(')') - name.LastIndexOf('(')-1);
+            number = "(" + number.PadLeft(5, '0') + ")";
             name = Regex.Replace(name, @"\(\d*\)", "");
-            number = number.PadLeft(5, '0');
-            number = "(" + number + ")";
             return name + number;
         }
 
         string RemoveZeros(string name)
         {
-            return Regex.Replace(name, @"\([0]*", m => Regex.Replace(m.Value, @"[0]+", ""));
+            string number = name.Substring(name.LastIndexOf('('), name.LastIndexOf(')') - name.LastIndexOf('(')+1);
+            number = Regex.Replace(number, @"\([0]*", m => Regex.Replace(m.Value, @"[0]*", ""));
+            name = Regex.Replace(name, @"\(\d*\)", "");
+            return name + number;
         }
         EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
     }
