@@ -23,7 +23,7 @@ public class ObjectSorter : Editor
         {
             List<Transform> children = parent.Cast<Transform>().ToList();
             foreach (var child in children)
-                if (Regex.IsMatch(child.name, @"\([0-9]*\)\n"))
+                if (Regex.IsMatch(child.name, @"\([0-9]*\)$"))
                     child.name = InsertZeros(child.name);
 
             children.Sort((Transform t1, Transform t2) => { return t1.name.CompareTo(t2.name); });
@@ -31,7 +31,7 @@ public class ObjectSorter : Editor
                 children[i].SetSiblingIndex(i);
 
             foreach (var child in children)
-                if (Regex.IsMatch(child.name, @"\([0-9]*\)\n"))
+                if (Regex.IsMatch(child.name, @"\([0-9]*\)$"))
                     child.name = RemoveZeros(child.name);
         }
 
@@ -39,6 +39,7 @@ public class ObjectSorter : Editor
         {
             string number = name.Substring(name.LastIndexOf('(')+1, name.LastIndexOf(')') - name.LastIndexOf('(')-1);
             number = "(" + number.PadLeft(5, '0') + ")";
+            Debug.Log(number);
             name = Regex.Replace(name, @"\(\d*\)", "");
             return name + number;
         }
